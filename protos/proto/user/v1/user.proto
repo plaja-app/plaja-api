@@ -1,0 +1,15 @@
+syntax = "proto3";
+package user.v1;
+
+option go_package = "github.com/plaja-app/plaja-api/protos/v1/user";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+service UserService {
+  rpc Test(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get: "/v1/user/test"
+    };
+  }
+}
