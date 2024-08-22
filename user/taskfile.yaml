@@ -1,0 +1,69 @@
+version: '3'
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list-all
+
+  install:
+    desc: "Install all tools"
+    deps:
+      - install:lint
+      - install:gofumpt
+      - install:godotenv
+
+  install:lint:
+    desc: "Install golangci-lint"
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    status:
+      - command -v golangci-lint
+
+  install:gofumpt:
+    desc: "Install gofumpt"
+    cmds:
+      - go install mvdan.cc/gofumpt@latest
+    status:
+      - command -v gofumpt
+
+  install:godotenv:
+    desc: "Install godotenv lib"
+    cmds:
+      - go install github.com/joho/godotenv/cmd/godotenv@latest
+    status:
+      - command godotenv
+
+  lint:
+    desc: "Run golangci-lint"
+    deps: [ install:lint ]
+    cmds:
+      - echo "Running linters..."
+      - golangci-lint run
+    sources:
+      - .golangci.yml
+      - ./**/*.go
+      - go.mod
+      - go.sum
+
+  format:
+    desc: "Run gofumpt"
+    deps: [ install:gofumpt ]
+    cmds:
+      - echo "Running formatter..."
+      - gofumpt -e -l -w .
+
+  run:
+    desc: "Run service with env variables populated from .env file"
+    deps: [ install:godotenv ]
+    cmds:
+      - godotenv -f ../.env task run-with-env
+
+  run-with-env:
+    required:
+      vars:
+        - USER_ADDR
+        - USER_LOG_LEVEL
+        - USER_LOG_DIR
+    cmds:
+      - go run ./cmd/server

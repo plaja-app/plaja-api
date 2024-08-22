@@ -1,0 +1,16 @@
+version: '3'
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list-all
+
+  generate:
+    deps: [ install:deps ]
+    cmds:
+      - buf generate
+
+  install:deps:
+    cmds:
+      - buf dep update

@@ -1,0 +1,51 @@
+version: '3'
+
+includes:
+  gateway:
+    taskfile: ./gateway/taskfile.yaml
+    dir: ./gateway
+  user:
+    taskfile: ./user/taskfile.yaml
+    dir: ./user
+  protos:
+    taskfile: ./protos/taskfile.yaml
+    dir: ./protos
+  pkg:
+    taskfile: ./pkg/taskfile.yaml
+    dir: ./pkg
+
+tasks:
+  install:
+    desc: "Install all tools"
+    deps:
+      - install:lint
+      - install:gofumpt
+
+  install:lint:
+    desc: "Install golangci-lint"
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    status:
+      - command -v golangci-lint
+
+  lint:
+    desc: "Run golangci-lint"
+    deps: [ install:lint ]
+    cmds:
+      - task gateway:lint
+      - task user:lint
+      - task pkg:lint
+
+  format:
+    desc: "Run gofumpt"
+    deps:
+      - gateway:format
+      - user:format
+      - pkg:format
+
+  run:
+    desc: "Run app"
+    deps:
+      - gateway:run
+      - user:run
+      - pkg:lint
